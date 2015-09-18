@@ -212,6 +212,26 @@
         }, 0);
     }
 
+    p.teardown = function() {
+        // disconnect observers
+        this.observer.disconnect();
+        this.parentObserver.disconnect();
+
+        // remove sprite
+        if (this.sprite) {
+            this.sprite.texture.destroy();
+
+            var parentSprite = this.glParent && this.glParent.sprite || w.HTMLGL.document;
+            parentSprite.removeChild(this.sprite);
+        }
+
+        this.updateTexture();
+        this.glParent.removeGlChild(this);
+
+        // reshow the dom node
+        this.style.opacity = 1;
+    }
+
     p.initObservers = function () {
         //TODO Better heuristics for rerendering condition #2
         var self = this,
@@ -221,7 +241,18 @@
                 subtree: true,
                 attributes: true,
                 attributeFilter: ['style']
+            },
+            parentConfig = {
+                childList: true
             };
+
+        this.parentObserver  = this.parentObserver || new MutationObserver(function (mutations) {
+            if (!self.parentNode) {
+                self.teardown();
+            }
+        });
+
+        this.parentObserver.observe(this.parentNode, parentConfig);
 
         this.observer = this.observer || new MutationObserver(function (mutations) {
             if (mutations[0].attributeName === 'style') {
