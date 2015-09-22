@@ -217,6 +217,9 @@
         this.observer.disconnect();
         this.parentObserver.disconnect();
 
+        // TODO this was a failed stab at removing the rasterized portion
+        this.updateTexture();
+
         // remove sprite
         if (this.sprite) {
             this.sprite.texture.destroy();
@@ -224,9 +227,6 @@
             var parentSprite = this.glParent && this.glParent.sprite || w.HTMLGL.document;
             parentSprite.removeChild(this.sprite);
         }
-
-        this.updateTexture();
-        this.glParent.removeGlChild(this);
 
         // reshow the dom node
         this.style.opacity = 1;
